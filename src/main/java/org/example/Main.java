@@ -1,17 +1,92 @@
-package org.example;
+import java.math.BigDecimal;
+import java.util.Locale;
+import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        scanner.useLocale(Locale.forLanguageTag("ru-RU"));
+
+        Account account = new Account(
+                12345,
+                999,
+                new BigDecimal("10000.00"),
+                BankType.AUM
+        );
+
+        System.out.println("Добро пожаловать!");
+        System.out.print("Введите номер карты: ");
+
+        if (!scanner.hasNextInt()) {
+            System.out.println("Ошибка ввода.");
+            return;
         }
+
+        int cardNumber = scanner.nextInt();
+
+        System.out.print("Введите PIN-код: ");
+
+        if (!scanner.hasNextInt()) {
+            System.out.println("Ошибка ввода.");
+            return;
+        }
+
+        int pinCode = scanner.nextInt();
+
+        // Проверка авторизации
+        if (cardNumber != account.getCardNumber()
+                || pinCode != account.getPinCode()) {
+            System.out.println("Ошибка доступа.");
+            return;
+        }
+
+        System.out.println("Авторизация успешна!");
+
+        CashMachine cashMachine = new CashMachine();
+
+        // Тест 1: внесение денег
+        System.out.print("Введите сумму для внесения: ");
+
+        if (!scanner.hasNextDouble()) {
+            System.out.println("Ошибка ввода.");
+            return;
+        }
+
+        double depositValue = scanner.nextDouble();
+        BigDecimal depositAmount = BigDecimal.valueOf(depositValue);
+
+        BigDecimal balance = account.getBalance();
+
+        balance = cashMachine.deposit(balance, depositAmount);
+
+        System.out.printf(
+                "Баланс после внесения: %.2f руб.%n",
+                balance
+        );
+
+        // Тест 2: снятие денег
+        System.out.print("Введите сумму для снятия: ");
+
+        if (!scanner.hasNextDouble()) {
+            System.out.println("Ошибка ввода.");
+            return;
+        }
+
+        double withdrawValue = scanner.nextDouble();
+        BigDecimal withdrawAmount = BigDecimal.valueOf(withdrawValue);
+
+        balance = cashMachine.withdraw(
+                balance,
+                withdrawAmount,
+                account.getBankType()
+        );
+
+        System.out.printf(
+                "Баланс после снятия: %.2f руб.%n",
+                balance
+        );
+
+        scanner.close();
     }
 }
